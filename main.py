@@ -58,8 +58,8 @@ def stretch(x, ymax, ymin,tempymax,tempymin):
         if((ymax[i]==tempymax) and (ymin[i]==tempymin)):
                 ymax[i]=ymax[i]*x
                 ymin[i]=ymin[i]/x
-                print('Stretch by a factor of ',x,' Y_max went to',ymax[i])
-                print('Stretch by a factor of ',x,' Y_minwent to',ymin[i])
+                print('Stretch by a factor of ',x,' Y_max went to',ymax[i],' from ',tempymax)
+                print('Stretch by a factor of ',x,' Y_minwent to',ymin[i],' from ',tempymin)
     return ymax, ymin
 
 
@@ -68,8 +68,8 @@ def strongpromoter(x, ymax, ymin,tempymax,tempymin):
         if((ymax[i]==tempymax) and (ymin[i]==tempymin)):
             ymax[i]=ymax[i]*x
             ymin[i]=ymin[i]*x
-            print('Strong promoter by a factor of ',x,'\n Y_max went to',ymax[i])
-            print('Strong promoter by a factor of ',x,'\n Y_minwent to',ymin[i])
+            print('Strong promoter by a factor of ',x,'\n Y_max went to',ymax[i],' from ',tempymax)
+            print('Strong promoter by a factor of ',x,'\n Y_minwent to',ymin[i],' from ',tempymin)
     return ymax, ymin
         
 def weakpromoter(x,ymax,ymin,tempymax,tempymin):
@@ -77,22 +77,22 @@ def weakpromoter(x,ymax,ymin,tempymax,tempymin):
         if((ymax[i]==tempymax) and (ymin[i]==tempymin)):
             ymax[i]=ymax[i]/x
             ymin[i]=ymin[i]/x
-            print('Weak promoter by a factor of ',x,'\n Y_max went to',ymax[i])
-            print('Weak promoter by a factor of ',x,'\n Y_minwent to',ymin[i])
+            print('Weak promoter by a factor of ',x,'\n Y_max went to',ymax[i],' from ',tempymax)
+            print('Weak promoter by a factor of ',x,'\n Y_minwent to',ymin[i],' from ',tempymin)
     return ymax, ymin
 
 def increaseslope(n, x,tempn):
     for i in range(len(n)):
         if(tempn==n[i]):
             n[i]=n[i]*x
-            print('Increase Slope by a factor of ',x,'\n n went to',n[i])
+            print('Increase Slope by a factor of ',x,'\n n went to',n[i],' from ',tempn)
     return n
 
 def decreaseslope(n,x):
     for i in range(len(n)):
         if(tempn==n[i]):
             n[i]=n[i]/x
-            print('Decrease Slope by a factor of ',x,'\n n went to',n[i])
+            print('Decrease Slope by a factor of ',x,'\n n went to',n[i],' from ',tempn)
     return n
 
 
@@ -100,14 +100,14 @@ def weakrbs(k, x,tempk):
     for i in range(len(k)):
         if(tempk==k[i]):
             k[i]=k[i]/x
-            print('Weak RBS by a factor of ',x,'\n b went to',k[i])
+            print('Weak RBS by a factor of ',x,'\n b went to',k[i],' from ',tempk)
     return k
 
 def strongrbs(k,x):
     for i in range(len(k)):
         if(tempk==k[i]):
             k[i]=k[i]*x
-            print('Strong RBS by a factor of ',x,'\n b went to',k[i])
+            print('Strong RBS by a factor of ',x,'\n b went to',k[i],' from ',tempymax)
     return k
 #----------------calculating the score
 def response(ymin, ymax, n, k, x):
@@ -183,79 +183,139 @@ def main():
                     ymin=ymin2
                     k=K2
                     n=n2
-                    for i in name2:
-                        print(i)
+                    print('--------------')
+                    for i in range(len(name2)):
+                        print(i,'-',name2[i],'\n')
                 elif(gate_sensor=='b'):
                     name=name1
                     ymax=ymax1
                     ymin=ymin1
                     k=K1
                     n=n1
-                    for i in name1:
-                        print(i) 
-                nametime=input('Choose a name (type exactly as show above)\n') 
+                    print('--------------')
+                    for i in range(len(name1)):
+                        print(i,'-',name1[i],'\n')
+                nametime_index=input('Choose a name (type the number)\n')
+                nametime=name[int(nametime_index)]
                 tempymax,tempymin,tempk,tempn=getstat(nametime,name,ymax,ymin,k,n) 
                 if (operations=='a'):
                     x=input('Input x: ')
+                    print('\n\n\n')
+                    print('--------------')
                     print('Stretch ',nametime,' by ',x)
+                    print('--------------')
                     ymax,ymin=stretch(float(x), ymax, ymin,tempymax,tempymin)
+                    print('--------------')
+                    print('\n\n\n')
                 elif(operations=='b'):
                     x=input('Input x: ')
+                    print('\n\n\n')
+                    print('--------------')
                     print('Strong promoter ',nametime,' by ',x)
+                    print('--------------')
                     ymax,ymin=strongpromoter(float(x),ymax,ymin,tempymax,tempymin)
+                    print('--------------')
+                    print('\n\n\n')
                 elif(operations=='c'): 
                     x=input('Input x: ')
+                    print('\n\n\n')
+                    print('--------------')
                     print('Weak promoter ',nametime,' by ',x)
+                    print('--------------')
                     ymax,ymin=weakpromoter(float(x),ymax,ymin,tempymax,tempymin)
+                    print('--------------')
+                    print('\n\n\n')
                 elif(operations=='d'): 
                     x=input('Input x: ')
+                    print('\n\n\n')
+                    print('--------------')
                     print('Increase Slope ',nametime,' by ',x)
+                    print('--------------')
                     n=increaseslope(n,float(x),tempn)
+                    print('--------------')
+                    print('\n\n\n')
                 elif(operations=='e'): 
                     x=input('Input x: ')
+                    print('\n\n\n')
+                    print('--------------')
                     print('Decrease Slope ',nametime,' by ',x)
+                    print('--------------')
                     n=decreaseslope(n,float(x),tempn)
+                    print('--------------')
+                    print('\n\n\n')
                 elif(operations=='f'): 
                     x=input('Input x: ')
+                    print('\n\n\n')
+                    print('--------------')
                     print('Weak RBS ',nametime,' by ',x)
+                    print('--------------')
                     K=weakrbs(k,float(x),tempk)
+                    print('--------------')
+                    print('\n\n\n')
                 elif(operations=='g'):
                     x=input('Input x: ')
+                    print('\n\n\n')
+                    print('--------------')
                     print('Strong RBS ',nametime,' by ',x)
+                    print('--------------')
                     K=strongrbs(k,float(x),tempk)
+                    print('--------------')
+                    print('\n\n\n')
                 if(gate_sensor=='a'):
                     name2=name
                     ymax2=ymax
                     ymin2=ymin
-                    K2=K
+                    K2=k
                     n2=n
                 if(gate_sensor=='a'):
                     name1=name
                     ymax1=ymax
                     ymin1=ymin
-                    K1=K
+                    K1=k
                     n1=n
         elif(user_choice=='b'):
-            gate_sensor= input('Gate or Sensor: \n (a) Gate \b (b) Sensor\n')
-            if(gate_sensor=='a'):
-                name=name2
-                ymax=ymax2
-                ymin=ymin2
-                k=K2
-                n=n2
-                for i in name2:
-                    print(i)
-            elif(gate_sensor=='b'):
-                name=name1
-                ymax=ymax1
-                ymin=ymin1
-                k=K1
-                n=n1
-                for i in name1:
-                    print(i) 
-            nametime=input('Choose a name (type exactly as show above)\n')
-            tempymax,tempymin,tempk,tempn=getstat(nametime,name,ymax,ymin,k,n)
-            print(nametime,' statistic:\n','Ymax: ',tempymax,'\n Ymin: ',tempymin,'\n K: ',tempk,'\n n:',tempn)
+            gate_sensor= input('Gate or Sensors: \n (a) Gate \b (b) Sensor\n')
+            nametime_index='y'
+            while(nametime_index!='x'):
+                if(gate_sensor=='a'):
+                    name=name2
+                    ymax=ymax2
+                    ymin=ymin2
+                    k=K2
+                    n=n2
+                    print('--------------')
+                    for i in range(len(name2)):
+                        print(i,'-',name2[i],'\n')
+                    print('(b) Change to Sensor')
+                    print('(x) stop\n')
+                elif(gate_sensor=='b'):
+                    name=name1
+                    ymax=ymax1
+                    ymin=ymin1
+                    k=K1
+                    n=n1
+                    print('--------------')
+                    for i in range(len(name1)):
+                        print(i,'-',name1[i],'\n')
+                    print('(b) Change to Gate')
+                    print('(x) stop\n')
+                nametime_index=input('Choose a name (type the number or variable)\n')
+                if(nametime_index=='x'):
+                    break
+                elif(nametime_index=='b'):
+                    if(gate_sensor=='a'):
+                        gate_sensor='b'
+                    elif(gate_sensor=='b'):
+                        gate_sensor='a'
+                else:
+
+                    nametime=name[int(nametime_index)]
+                    tempymax,tempymin,tempk,tempn=getstat(nametime,name,ymax,ymin,k,n)
+                    print('\n\n\n')
+                    print('--------------')
+                    print(nametime,' statistic:\n','Ymax: ',tempymax,'\n Ymin: ',tempymin,'\n K: ',tempk,'\n n:',tempn)
+                    print('--------------')
+                    print('\n\n\n')
     update(input_files,name1,ymax1,ymin1,K1,n1)
     update(input_ucf,name2,ymax2,ymin2,K2,n2)
     q = CelloQuery(
@@ -272,6 +332,7 @@ def main():
     best_input_signals = None
     signal_input = 2
     signals = q.get_input_signals()
+    print('--------------')
     signal_pairing = list(combinations(signals, signal_input))
     for signal_set in signal_pairing:
         signal_set = list(signal_set)
@@ -286,7 +347,7 @@ def main():
         except:
             pass
         q.reset_input_signals()
-    print('-----')
+    print('--------------')
     print(f'Best Score: {best_score}')
     print(f'Best Input Signals: {best_input_signals}')  
 
