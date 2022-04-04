@@ -1,6 +1,7 @@
 import os
 import sys
 import math
+from itertools import combinations
 from celloapi2 import CelloQuery, CelloResult
 import json
 
@@ -40,62 +41,73 @@ def parse(data):
                     K.append(data[i]['parameters'][j]['value'])
                 elif data[i]['parameters'][j]['name'] == 'n':
                     n.append(data[i]['parameters'][j]['value'])
+    if(len(K)==0):
+        for i in range(len(name)):
+            K.append(0)
+    if(len(n)==0):
+        for i in range(len(name)):
+            n.append(0)
+
     return name, ymax, ymin, K, n
 
 
 
 #----------all of the necessary operations
-def stretch(x, ymax, ymin):
+def stretch(x, ymax, ymin,tempymax,tempymin):
     for i in range(len(ymax)):
-        ymax[i]=ymax[i]*x
-        print('Stretch by a factor of ',x,'\n Y_max went to',ymax[i])
-    for i in range(len(ymin)):
-        ymin[i]=ymin[i]/x
-        print('Stretch by a factor of ',x,'\n Y_minwent to',ymin[i])
+        if((ymax[i]==tempymax) and (ymin[i]==tempymin)):
+                ymax[i]=ymax[i]*x
+                ymin[i]=ymin[i]/x
+                print('Stretch by a factor of ',x,' Y_max went to',ymax[i])
+                print('Stretch by a factor of ',x,' Y_minwent to',ymin[i])
     return ymax, ymin
 
 
-def strongpromoter(x, ymax, ymin):
+def strongpromoter(x, ymax, ymin,tempymax,tempymin):
     for i in range(len(ymax)):
-        ymax[i]=ymax[i]*x
-        print('Strong promoter by a factor of ',x,'\n Y_max went to',ymax[i])
-    for i in range(len(ymin)):
-        ymin[i]=ymin[i]*x
-        print('Strong promoter by a factor of ',x,'\n Y_minwent to',ymin[i])
+        if((ymax[i]==tempymax) and (ymin[i]==tempymin)):
+            ymax[i]=ymax[i]*x
+            ymin[i]=ymin[i]*x
+            print('Strong promoter by a factor of ',x,'\n Y_max went to',ymax[i])
+            print('Strong promoter by a factor of ',x,'\n Y_minwent to',ymin[i])
     return ymax, ymin
         
-def weakpromoter(x,ymax,ymin):
+def weakpromoter(x,ymax,ymin,tempymax,tempymin):
     for i in range(len(ymax)):
-        ymax[i]=ymax[i]/x
-        print('Weak promoter by a factor of ',x,'\n Y_max went to',ymax[i])
-    for i in range(len(ymin)):
-        ymin[i]=ymin[i]/x
-        print('Weak promoter by a factor of ',x,'\n Y_minwent to',ymin[i])
+        if((ymax[i]==tempymax) and (ymin[i]==tempymin)):
+            ymax[i]=ymax[i]/x
+            ymin[i]=ymin[i]/x
+            print('Weak promoter by a factor of ',x,'\n Y_max went to',ymax[i])
+            print('Weak promoter by a factor of ',x,'\n Y_minwent to',ymin[i])
     return ymax, ymin
 
-def increaseslope(n, x):
+def increaseslope(n, x,tempn):
     for i in range(len(n)):
-        n[i]=n[i]*x
-        print('Increase Slope by a factor of ',x,'\n n went to',n[i])
+        if(tempn==n[i]):
+            n[i]=n[i]*x
+            print('Increase Slope by a factor of ',x,'\n n went to',n[i])
     return n
 
 def decreaseslope(n,x):
     for i in range(len(n)):
-        n[i]=n[i]/x
-        print('Decrease Slope by a factor of ',x,'\n n went to',n[i])
+        if(tempn==n[i]):
+            n[i]=n[i]/x
+            print('Decrease Slope by a factor of ',x,'\n n went to',n[i])
     return n
 
 
-def weakrbs(k, x):
+def weakrbs(k, x,tempk):
     for i in range(len(k)):
-        k[i]=k[i]/x
-        print('Weak RBS by a factor of ',x,'\n b went to',k[i])
+        if(tempk==k[i]):
+            k[i]=k[i]/x
+            print('Weak RBS by a factor of ',x,'\n b went to',k[i])
     return k
 
 def strongrbs(k,x):
     for i in range(len(k)):
-        k[i]=k[i]*x
-        print('Strong RBS by a factor of ',x,'\n n went to',k[i])
+        if(tempk==k[i]):
+            k[i]=k[i]*x
+            print('Strong RBS by a factor of ',x,'\n b went to',k[i])
     return k
 #----------------calculating the score
 def response(ymin, ymax, n, k, x):
@@ -111,17 +123,142 @@ def score(ymin,ymax,n,k,x):
     off_max= truthtable[1]
     final_score=math.log10(on_min/off_max)
     return final_score
-  
+#---------------- gettinng the stat given the name of the sensor or gate
+def getstat(input,name,ymax,ymin,k,n):
+    for i in range(len(name)):
+        if (name[i]==input):
+            return ymax[i],ymin[i],k[i],n[i]
+    print('Not Found!')
+#--------update the json files
+def update(input_files,name,ymax,ymin,k,n):
+    with open('input/' + input_files, "r") as jsonFile:
+        data = json.load(jsonFile)
+    for x in range(len(name)):
+        nametime=name[x]
+        tempymax,tempymin,tempk,tempn=getstat(nametime,name,ymax,ymin,k,n)
+        for i in range(len(data)):
+            if data[i]["collection"] == 'models':
+                if(data[i]['name']==name[x]):
+                    for j in range(len(data[i]['parameters'])):
+                        if data[i]['parameters'][j]['name'] == 'ymax':
+                            data[i]['parameters'][j]['value']=tempymax
+                        elif data[i]['parameters'][j]['name'] == 'ymin':
+                            data[i]['parameters'][j]['value']=tempymin
+                        elif data[i]['parameters'][j]['name'] == 'K':
+                            data[i]['parameters'][j]['value']=tempk
+                        elif data[i]['parameters'][j]['name'] == 'n':
+                            data[i]['parameters'][j]['value']=tempn
+    with open('input/' + input_files, "w") as jsonFile:
+        json.dump(data, jsonFile)
+
+
+
+
+
 def main():
-  in_dir=os.path.join(os.getcwd(), 'input')
-  out_dir=os.path.join(os.getcwd(), 'output')
-  chassis=input('Enter chassis name: ')
-  input_ucf= f'{chassis}.UCF.json'
-  input_files=f'{chassis}.input.json'
-  output_files=f'{chassis}.output.json'
-  v_file = 'and.v'
-  options = 'options.csv'
-  q = CelloQuery(
+    #--------inputing all files
+    in_dir=os.path.join(os.getcwd(), 'input')
+    out_dir=os.path.join(os.getcwd(), 'output')
+    chassis=input('Enter chassis name: ')
+    input_ucf= f'{chassis}.UCF.json'
+    input_files=f'{chassis}.input.json'
+    output_files=f'{chassis}.output.json'
+    v_file = 'and.v'
+    options = 'options.csv'
+    name1, ymax1, ymin1, K1, n1=read_file(input_files,chassis)
+    name2, ymax2, ymin2, K2, n2= read_file(input_ucf,chassis)
+    user_choice='x'
+    while(user_choice !='c'):
+        user_choice= input('What do you want to do:\n (a) Do an operation on gate or sensor\n (b) Check a sensor or a gate\n (c) Check result\n')
+        if(user_choice=='a'):
+            operations='x'
+            while (operations != 'h'):
+                operations= input('Choose an operation:\n (a) Stretch \n (b) Strong promoter \n (c) Weak Promoter \n (d) Increase Slope \n (e) Decrease Slope \n (f) Weak RBS \n (g) Strong RBS \n (h) Stop\n')
+                if(operations=='h'):
+                    break
+                gate_sensor= input('Gate or Sensors: \n (a) Gate \b (b) Sensor\n')
+                if(gate_sensor=='a'):
+                    name=name2
+                    ymax=ymax2
+                    ymin=ymin2
+                    k=K2
+                    n=n2
+                    for i in name2:
+                        print(i)
+                elif(gate_sensor=='b'):
+                    name=name1
+                    ymax=ymax1
+                    ymin=ymin1
+                    k=K1
+                    n=n1
+                    for i in name1:
+                        print(i) 
+                nametime=input('Choose a name (type exactly as show above)\n') 
+                tempymax,tempymin,tempk,tempn=getstat(nametime,name,ymax,ymin,k,n) 
+                if (operations=='a'):
+                    x=input('Input x: ')
+                    print('Stretch ',nametime,' by ',x)
+                    ymax,ymin=stretch(float(x), ymax, ymin,tempymax,tempymin)
+                elif(operations=='b'):
+                    x=input('Input x: ')
+                    print('Strong promoter ',nametime,' by ',x)
+                    ymax,ymin=strongpromoter(float(x),ymax,ymin,tempymax,tempymin)
+                elif(operations=='c'): 
+                    x=input('Input x: ')
+                    print('Weak promoter ',nametime,' by ',x)
+                    ymax,ymin=weakpromoter(float(x),ymax,ymin,tempymax,tempymin)
+                elif(operations=='d'): 
+                    x=input('Input x: ')
+                    print('Increase Slope ',nametime,' by ',x)
+                    n=increaseslope(n,float(x),tempn)
+                elif(operations=='e'): 
+                    x=input('Input x: ')
+                    print('Decrease Slope ',nametime,' by ',x)
+                    n=decreaseslope(n,float(x),tempn)
+                elif(operations=='f'): 
+                    x=input('Input x: ')
+                    print('Weak RBS ',nametime,' by ',x)
+                    K=weakrbs(k,float(x),tempk)
+                elif(operations=='g'):
+                    x=input('Input x: ')
+                    print('Strong RBS ',nametime,' by ',x)
+                    K=strongrbs(k,float(x),tempk)
+                if(gate_sensor=='a'):
+                    name2=name
+                    ymax2=ymax
+                    ymin2=ymin
+                    K2=K
+                    n2=n
+                if(gate_sensor=='a'):
+                    name1=name
+                    ymax1=ymax
+                    ymin1=ymin
+                    K1=K
+                    n1=n
+        elif(user_choice=='b'):
+            gate_sensor= input('Gate or Sensor: \n (a) Gate \b (b) Sensor\n')
+            if(gate_sensor=='a'):
+                name=name2
+                ymax=ymax2
+                ymin=ymin2
+                k=K2
+                n=n2
+                for i in name2:
+                    print(i)
+            elif(gate_sensor=='b'):
+                name=name1
+                ymax=ymax1
+                ymin=ymin1
+                k=K1
+                n=n1
+                for i in name1:
+                    print(i) 
+            nametime=input('Choose a name (type exactly as show above)\n')
+            tempymax,tempymin,tempk,tempn=getstat(nametime,name,ymax,ymin,k,n)
+            print(nametime,' statistic:\n','Ymax: ',tempymax,'\n Ymin: ',tempymin,'\n K: ',tempk,'\n n:',tempn)
+    update(input_files,name1,ymax1,ymin1,K1,n1)
+    update(input_ucf,name2,ymax2,ymin2,K2,n2)
+    q = CelloQuery(
         input_directory=in_dir,
         output_directory=out_dir,
         verilog_file=v_file,
@@ -130,50 +267,28 @@ def main():
         input_sensors=input_files,
         output_device=output_files,
     )
-  name1, ymax1, ymin1, K1, n1=read_file(input_files,chassis)
-  name2, ymax2, ymin2, K2, n2= read_file(input_ucf,chassis)
-  name=name1+name2
-  ymax=ymax1+ymax2
-  ymin=ymin1+ymin2
-  K=K1+K2
-  n=n1+n2
-  operations='x'
-  xfinal=[]
-  while (operations != 'h'):
-    operations= input('Choose an operation:\n (a) Stretch \n (b) Strong promoter \n (c) Weak Promoter \n (d) Increase Slope \n (e) Decrease Slope \n (f) Weak RBS \n (g) Strong RBS \n (h) Stop\n')
-    if (operations=='a'):
-        x=input('Input x: ')
-        ymax,ymin=stretch(float(x), ymax, ymin)
-        xfinal.append(float(x))
-    elif(operations=='b'):
-        x=input('Input x: ')
-        ymax,ymin=strongpromoter(float(x),ymax,ymin)
-        xfinal.append(float(x))
-    elif(operations=='c'): 
-        x=input('Input x: ')
-        ymax,ymin=weakpromoter(float(x),ymax,ymin)
-        xfinal.append(float(x))
-    elif(operations=='d'): 
-        x=input('Input x: ')
-        n=increaseslope(n,float(x))
-        xfinal.append(float(x))
-    elif(operations=='e'): 
-        x=input('Input x: ')
-        n=decreaseslope(n,float(x))
-        xfinal.append(float(x))
-    elif(operations=='f'): 
-        x=input('Input x: ')
-        K=weakrbs(K,float(x))
-        xfinal.append(float(x))
-    elif(operations=='g'):
-        x=input('Input x: ')
-        K=strongrbs(K,float(x)) 
-        xfinal.append(float(x)) 
-  print(xfinal)
-  print("Output of our score: ", score(ymin,ymax,n,K,xfinal));
-  q.get_results()
-  res = CelloResult(results_dir=out_dir)
-  print("Output of sequence score: ",res.circuit_score)   
+    best_score = 0
+    best_gates = None
+    best_input_signals = None
+    signal_input = 2
+    signals = q.get_input_signals()
+    signal_pairing = list(combinations(signals, signal_input))
+    for signal_set in signal_pairing:
+        signal_set = list(signal_set)
+        q.set_input_signals(signal_set)
+        q.get_results()
+        try:
+            res = CelloResult(results_dir=out_dir)
+            if res.circuit_score > best_score:
+                best_score = res.circuit_score
+                best_chassis = chassis
+                best_input_signals = signal_set
+        except:
+            pass
+        q.reset_input_signals()
+    print('-----')
+    print(f'Best Score: {best_score}')
+    print(f'Best Input Signals: {best_input_signals}')  
 
 if __name__ == "__main__":
     main()
