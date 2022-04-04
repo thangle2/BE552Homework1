@@ -7,3 +7,8 @@ In order to use the algorithm, one must first pull from docker and the celloapi 
 $ docker pull cidarlab/cello-dnacompiler:latest
 
 $ pip install celloapi2
+
+$gh repo clone thangle2/BE552Homework1
+
+
+
